@@ -1,0 +1,15 @@
+# Streamlit secrets (NEVER commit secrets to public repositories)
+.streamlit/secrets.toml
+
+# Python bytecode and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env
+
+# Operating System files
+.DS_Store
+Thumbs.db
