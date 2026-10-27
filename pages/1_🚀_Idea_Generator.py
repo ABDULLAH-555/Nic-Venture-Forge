@@ -1,8 +1,3 @@
-"""
-NIC Venture Forge - Idea & Plan Generator
-National Incubation Center (NIC)
-Developed by Abdullah Khalid Khan | Designed for National Incubation Center
-"""
 
 import os
 import re
@@ -76,6 +71,7 @@ GENERATOR_CSS = """
     .header-title {
         font-size: 2.1rem;
         font-weight: 800;
+        margin-top: 0;
         margin-bottom: 8px;
         color: #FFFFFF;
     }
@@ -148,6 +144,7 @@ GENERATOR_CSS = """
     .nic-footer-credit {
         font-weight: 600;
         color: #0D5C46;
+        margin-bottom: 0;
     }
 
     .nic-footer-tagline {
@@ -181,6 +178,11 @@ GENERATOR_CSS = """
         border-radius: 12px;
         color: white;
         margin-bottom: 20px;
+    }
+
+    /* Hide Streamlit default multipage navigation list */
+    [data-testid="stSidebarNav"] {
+        display: none !important;
     }
 </style>
 """
@@ -288,8 +290,6 @@ with st.sidebar:
         index=0,
         help="Primary model for plan synthesis. Configured for OpenAI GPT-OSS 120B on Groq LPUs.",
     )
-    st.caption("⚡ Powered by Groq Cloud LPU Inference Engine.")
-
 
 # ==============================================================================
 # SAMPLE FOUNDER PRESETS (1-CLICK EVALUATION)
@@ -435,9 +435,6 @@ st.markdown('<div class="nic-topbar"></div>', unsafe_allow_html=True)
 st.markdown(
     """
     <div class="header-banner">
-        <div class="header-badge">
-            <span>⚡</span> National Incubation Center &bull; Venture Synthesis Engine
-        </div>
         <h1 class="header-title">NIC Idea & Plan Generator</h1>
         <p class="header-desc">
             Transform raw problem statements and industry themes into comprehensive, investor-ready startup blueprints.
@@ -843,9 +840,6 @@ st.markdown(
     <div class="nic-footer">
         <div class="nic-footer-credit">
             Developed by Abdullah Khalid Khan | Designed for National Incubation Center
-        </div>
-        <div class="nic-footer-tagline">
-            NIC Venture Forge &bull; Powered by Groq LPU &bull; LLaMA 3.3 70B &bull; Production Release v1.0
         </div>
     </div>
     """,
