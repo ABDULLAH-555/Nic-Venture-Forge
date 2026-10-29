@@ -1,13 +1,9 @@
-
 import os
 import re
 import time
 from datetime import datetime
 import streamlit as st
 
-# ==============================================================================
-# PAGE CONFIGURATION
-# ==============================================================================
 st.set_page_config(
     page_title="Idea Generator | NIC Venture Forge",
     page_icon="🚀",
@@ -15,9 +11,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ==============================================================================
-# CUSTOM BRANDING & CSS INJECTION (NIC BRAND SYSTEM)
-# ==============================================================================
 GENERATOR_CSS = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
@@ -32,7 +25,6 @@ GENERATOR_CSS = """
         letter-spacing: -0.02em;
     }
 
-    /* Top decoration bar */
     .nic-topbar {
         height: 4px;
         background: linear-gradient(90deg, #0D5C46 0%, #10B981 50%, #F59E0B 100%);
@@ -40,7 +32,6 @@ GENERATOR_CSS = """
         margin-bottom: 20px;
     }
 
-    /* Generator Page Header */
     .header-banner {
         background: linear-gradient(135deg, #063A2C 0%, #0D5C46 60%, #107C5F 100%);
         border-radius: 16px;
@@ -83,7 +74,6 @@ GENERATOR_CSS = """
         max-width: 850px;
     }
 
-    /* Form Container */
     .form-wrapper {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
@@ -93,7 +83,6 @@ GENERATOR_CSS = """
         margin-bottom: 24px;
     }
 
-    /* Output Card */
     .output-hero {
         background: #FFFFFF;
         border: 2px solid #10B981;
@@ -117,7 +106,6 @@ GENERATOR_CSS = """
         margin-bottom: 6px;
     }
 
-    /* Presets bar */
     .preset-chip {
         display: inline-block;
         padding: 6px 14px;
@@ -131,7 +119,6 @@ GENERATOR_CSS = """
         border: 1px solid #CBD5E1;
     }
 
-    /* Footer */
     .nic-footer {
         margin-top: 60px;
         padding: 24px 0 32px 0;
@@ -153,7 +140,6 @@ GENERATOR_CSS = """
         margin-top: 4px;
     }
 
-    /* Primary Button Polish */
     div.stButton > button[kind="primary"] {
         background: linear-gradient(135deg, #0D5C46 0%, #107C5F 100%) !important;
         border: none !important;
@@ -171,7 +157,6 @@ GENERATOR_CSS = """
         box-shadow: 0 10px 24px -2px rgba(13, 92, 70, 0.45) !important;
     }
 
-    /* Sidebar Brand */
     .sidebar-brand-box {
         padding: 16px;
         background: linear-gradient(135deg, #0D5C46 0%, #063A2C 100%);
@@ -180,7 +165,6 @@ GENERATOR_CSS = """
         margin-bottom: 20px;
     }
 
-    /* Hide Streamlit default multipage navigation list */
     [data-testid="stSidebarNav"] {
         display: none !important;
     }
@@ -188,19 +172,9 @@ GENERATOR_CSS = """
 """
 st.markdown(GENERATOR_CSS, unsafe_allow_html=True)
 
-# ==============================================================================
-# SECURE API KEY RESOLUTION (PRODUCTION COMPLIANT)
-# ==============================================================================
 def get_groq_api_key() -> str:
-    """
-    Securely resolves the Groq API key strictly adhering to production requirements:
-    1. Checks st.secrets["GROQ_API_KEY"]
-    2. Fallback check for session-level override (for testing UI without restarting)
-    3. Fallback check for environment variable
-    """
     api_key = None
 
-    # Priority 1: Native Streamlit Secrets (Required production standard)
     try:
         if "GROQ_API_KEY" in st.secrets:
             candidate = st.secrets["GROQ_API_KEY"]
@@ -209,11 +183,9 @@ def get_groq_api_key() -> str:
     except Exception:
         pass
 
-    # Priority 2: Session state key (Allows live testing in UI if user wishes)
     if not api_key and "custom_groq_key" in st.session_state and st.session_state["custom_groq_key"]:
         api_key = st.session_state["custom_groq_key"].strip()
 
-    # Priority 3: OS Environment Variable
     if not api_key:
         env_key = os.getenv("GROQ_API_KEY")
         if env_key and env_key.strip() and not env_key.startswith("gsk_your_groq_api_key"):
@@ -221,10 +193,6 @@ def get_groq_api_key() -> str:
 
     return api_key or ""
 
-
-# ==============================================================================
-# SIDEBAR NAVIGATION & ENGINE STATUS
-# ==============================================================================
 with st.sidebar:
     st.markdown(
         """
@@ -260,7 +228,6 @@ with st.sidebar:
             "Please configure `GROQ_API_KEY` in `.streamlit/secrets.toml` or provide it below for this session."
         )
 
-    # Optional dynamic key input for evaluator convenience
     with st.expander("🔑 Session Key Override", expanded=not bool(current_api_key)):
         session_key_input = st.text_input(
             "Enter Groq API Key:",
@@ -291,9 +258,6 @@ with st.sidebar:
         help="Primary model for plan synthesis. Configured for OpenAI GPT-OSS 120B on Groq LPUs.",
     )
 
-# ==============================================================================
-# SAMPLE FOUNDER PRESETS (1-CLICK EVALUATION)
-# ==============================================================================
 PRESET_IDEAS = {
     "🌾 AgriTech Cold-Chain (Punjab)": {
         "problem": "Smallholder citrus and tomato farmers in Sargodha and Multan face 35-40% post-harvest spoilage because refrigerated transport is monopolized by large brokers who charge predatory commissions and delay pickups.",
@@ -322,7 +286,6 @@ PRESET_IDEAS = {
 }
 
 def load_preset(preset_key: str):
-    """Callback to load a preset into session state."""
     preset = PRESET_IDEAS[preset_key]
     st.session_state["input_problem"] = preset["problem"]
     st.session_state["input_themes"] = preset["themes"]
@@ -331,10 +294,6 @@ def load_preset(preset_key: str):
     st.session_state["input_model"] = preset["model"]
     st.session_state["input_stage"] = preset["stage"]
 
-
-# ==============================================================================
-# PROMPT ENGINEERING (NIC ACCELERATOR DIRECTOR PERSONA)
-# ==============================================================================
 def construct_master_prompt(
     problem: str,
     themes: list,
@@ -343,10 +302,6 @@ def construct_master_prompt(
     model: str,
     stage: str,
 ) -> str:
-    """
-    Constructs an authoritative, investor-grade master prompt calibrating LLaMA 3.3 70B
-    as a Senior NIC Venture Partner & Accelerator Director.
-    """
     themes_str = ", ".join(themes) if themes else "General Technology"
 
     return f"""You are the Managing Partner and Chief Accelerator Director at the National Incubation Center (NIC) Pakistan. You possess over 18 years of venture capital, seed-stage accelerator, and early-stage startup building experience across emerging markets, having evaluated over 3,000 startup applications and funded dozens of breakout companies.
@@ -423,15 +378,8 @@ Structure it with:
 Produce the entire investor document now with rich Markdown formatting, bold highlights, bullet points, and tables where appropriate.
 """
 
-
-# ==============================================================================
-# MAIN GENERATOR PAGE
-# ==============================================================================
-
-# Decorative top bar
 st.markdown('<div class="nic-topbar"></div>', unsafe_allow_html=True)
 
-# Header Banner
 st.markdown(
     """
     <div class="header-banner">
@@ -445,8 +393,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Quick Preset Buttons
-st.markdown("##### ⚡ Quick Start: Load a Pre-Engineered NIC Cohort Case Study")
+st.markdown("#####  Quick Start: Load a Pre-Engineered NIC Cohort Case Study")
 preset_cols = st.columns([1, 1, 1, 1])
 
 with preset_cols[0]:
@@ -473,26 +420,21 @@ with preset_cols[3]:
 
 st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
-# ==============================================================================
-# VENTURE FORM INPUTS
-# ==============================================================================
 with st.container():
-    st.markdown("### 📝 1. Founder Input Form")
+    st.markdown("### 🎯 1.Problem Discovery & Market Thesis")
 
-    # Core Problem Statement (st.text_area)
     default_problem = st.session_state.get(
         "input_problem",
         "Smallholder farmers in Punjab face 40% post-harvest spoilage due to lack of cold-chain visibility and middlemen exploitation, resulting in lost income and high consumer food prices.",
     )
     problem_input = st.text_area(
-        "Core Problem Statement (What real-world market failure or customer pain are you solving?)*",
+        "Market Friction & Unmet Need (Define the systemic inefficiency, acute consumer pain, or market bottleneck you are addressing) *",
         value=default_problem,
         height=130,
         placeholder="Describe the painful reality, who suffers from it, how much money/time they lose, and why existing alternatives are inadequate...",
         help="Be specific about the customer's pain, the geographic context, and the financial or operational bottleneck.",
     )
 
-    # Row 1: Industry Themes & Specific Keywords
     input_row1_col1, input_row1_col2 = st.columns([1, 1])
 
     with input_row1_col1:
@@ -538,7 +480,6 @@ with st.container():
             help="Keywords that dictate the technology choice, distribution hack, or unique operational moat.",
         )
 
-    # Row 2: Target Market, Business Model & Venture Stage
     input_row2_col1, input_row2_col2, input_row2_col3 = st.columns([1, 1, 1])
 
     with input_row2_col1:
@@ -600,20 +541,15 @@ with st.container():
             help="Your current stage helps calibrate the MVP scope and fundraising ask.",
         )
 
-# ==============================================================================
-# GENERATION ACTION & GROQ API CALL
-# ==============================================================================
 st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
 generate_clicked = st.button(
-    "🚀 Generate Investor-Grade Startup Plan",
+    "Generate Startup Plan",
     type="primary",
     use_container_width=True,
     help="Triggers the Groq LPU engine to run LLaMA 3.3 70B Versatile on your parameters.",
 )
 
-# Execute Generation
 if generate_clicked:
-    # Validation
     if not problem_input or len(problem_input.strip()) < 15:
         st.warning("⚠️ Please provide a sufficiently descriptive problem statement (at least 15 characters).")
         st.stop()
@@ -627,7 +563,6 @@ if generate_clicked:
         )
         st.stop()
 
-    # Import Groq SDK safely
     try:
         from groq import Groq, APIConnectionError, RateLimitError, APIStatusError, AuthenticationError
     except ImportError:
@@ -637,7 +572,6 @@ if generate_clicked:
         )
         st.stop()
 
-    # Build Prompt
     master_prompt = construct_master_prompt(
         problem=problem_input.strip(),
         themes=selected_themes,
@@ -647,7 +581,6 @@ if generate_clicked:
         stage=venture_stage,
     )
 
-    # Execute with Streaming, Auto-Fallback & Robust Error Handling
     st.markdown("---")
     st.markdown("### ⚡ Synthesizing Plan on Groq LPU...")
 
@@ -655,7 +588,6 @@ if generate_clicked:
     try:
         client = Groq(api_key=groq_api_key)
 
-        # Candidate models prioritizing selected model
         candidate_models = [selected_model_id]
         for fallback in ["openai/gpt-oss-120b", "llama-3.1-8b-instant", "llama-3.3-70b-versatile"]:
             if fallback not in candidate_models:
@@ -687,7 +619,6 @@ if generate_clicked:
                         "stream": True,
                     }
 
-                    # Exact parameters for openai/gpt-oss-120b as specified
                     if "openai" in candidate.lower() or "gpt" in candidate.lower():
                         create_params["temperature"] = 1
                         create_params["max_completion_tokens"] = 2048
@@ -735,7 +666,6 @@ if generate_clicked:
             if fallback_notice:
                 st.info(fallback_notice)
 
-            # Stream response onto the page
             response_container = st.empty()
             full_content = ""
 
@@ -744,11 +674,9 @@ if generate_clicked:
                 full_content += chunk_delta
                 response_container.markdown(full_content + " ▌")
 
-            # Final render without cursor
             response_container.markdown(full_content)
             elapsed_time = round(time.time() - start_time, 2)
 
-            # Save in session state for persistence across tab changes
             st.session_state["generated_plan"] = full_content
             st.session_state["plan_meta"] = {
                 "problem": problem_input,
@@ -774,10 +702,6 @@ if generate_clicked:
     except Exception as e:
         st.error(f"❌ **Unexpected Error during plan generation:** {str(e)}")
 
-
-# ==============================================================================
-# DISPLAY PERSISTED PLAN & ACTION TOOLS
-# ==============================================================================
 if "generated_plan" in st.session_state and not generate_clicked:
     plan_content = st.session_state["generated_plan"]
     meta = st.session_state.get("plan_meta", {})
@@ -785,7 +709,6 @@ if "generated_plan" in st.session_state and not generate_clicked:
     st.markdown("---")
     st.markdown("### 📋 Current Active Venture Blueprint")
 
-    # Meta Tags Strip
     meta_cols = st.columns([3, 1])
     with meta_cols[0]:
         st.markdown(
@@ -803,7 +726,6 @@ if "generated_plan" in st.session_state and not generate_clicked:
         )
 
     with meta_cols[1]:
-        # Extract title slug for file name
         title_match = re.search(r"## 1\. Startup Name.*?\n(?:- \*\*Suggested Startup Name:\*\*|\*\*Suggested Startup Name:\*\*|###)?\s*([A-Za-z0-9_-]+)", plan_content)
         startup_slug = title_match.group(1).strip() if title_match else "Venture_Forge"
 
@@ -815,11 +737,9 @@ if "generated_plan" in st.session_state and not generate_clicked:
             use_container_width=True,
         )
 
-    # Render Document inside a styled container
     st.markdown(plan_content)
 
 elif "generated_plan" in st.session_state and generate_clicked:
-    # If just generated, show the download button
     plan_content = st.session_state["generated_plan"]
     title_match = re.search(r"## 1\. Startup Name.*?\n(?:- \*\*Suggested Startup Name:\*\*|\*\*Suggested Startup Name:\*\*|###)?\s*([A-Za-z0-9_-]+)", plan_content)
     startup_slug = title_match.group(1).strip() if title_match else "Venture_Forge"
@@ -832,9 +752,6 @@ elif "generated_plan" in st.session_state and generate_clicked:
         use_container_width=True,
     )
 
-# ==============================================================================
-# MANDATORY DEVELOPER FOOTER
-# ==============================================================================
 st.markdown(
     """
     <div class="nic-footer">

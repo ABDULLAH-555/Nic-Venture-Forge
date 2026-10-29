@@ -1,7 +1,5 @@
 import streamlit as st
-# ==============================================================================
-# PAGE CONFIGURATION
-# ==============================================================================
+
 st.set_page_config(
     page_title="NIC Venture Forge",
     page_icon="🏛️",
@@ -9,15 +7,10 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ==============================================================================
-# CUSTOM BRANDING & CSS INJECTION (ELITE DARK MODE DESIGN SYSTEM)
-# ==============================================================================
 NIC_DARK_CSS = """
 <style>
-    /* Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
-    /* Global App Background & Dark Theme Overrides */
     .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
         background-color: #0B0F19 !important;
         color: #F8FAFC !important;
@@ -38,7 +31,6 @@ NIC_DARK_CSS = """
         color: #94A3B8;
     }
 
-    /* Top decorative emerald gradient bar */
     .nic-topbar {
         height: 4px;
         background: linear-gradient(90deg, #059669 0%, #10B981 50%, #06B6D4 100%);
@@ -47,7 +39,6 @@ NIC_DARK_CSS = """
         box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
     }
 
-    /* Hero Banner Container */
     .hero-container {
         background: linear-gradient(135deg, rgba(6, 58, 44, 0.85) 0%, rgba(15, 23, 42, 0.95) 55%, rgba(11, 15, 25, 0.98) 100%);
         border-radius: 24px;
@@ -132,7 +123,6 @@ NIC_DARK_CSS = """
         color: #F8FAFC !important;
     }
 
-    /* Glass Chips Grid */
     .chips-container {
         display: flex;
         flex-wrap: wrap;
@@ -164,7 +154,6 @@ NIC_DARK_CSS = """
         color: #34D399 !important;
     }
 
-    /* Hero & Action CTA Button Styling */
     div.stButton {
         display: flex !important;
         justify-content: center !important;
@@ -225,7 +214,6 @@ NIC_DARK_CSS = """
         box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4) !important;
     }
 
-    /* Equal height columns support in Streamlit */
     div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {
         display: flex !important;
         flex-direction: column !important;
@@ -245,7 +233,6 @@ NIC_DARK_CSS = """
         height: 100% !important;
     }
 
-    /* Feature Cards System */
     .feature-card {
         background: #1E293B;
         border: 1px solid #334155;
@@ -296,7 +283,6 @@ NIC_DARK_CSS = """
         flex-grow: 1;
     }
 
-    /* Step Card */
     .step-card {
         background: #1E293B;
         border: 1px solid #334155;
@@ -341,7 +327,6 @@ NIC_DARK_CSS = """
         line-height: 1.55;
     }
 
-    /* Deliverables Matrix */
     .deliverable-box {
         background: #1E293B;
         border: 1px solid #334155;
@@ -389,7 +374,6 @@ NIC_DARK_CSS = """
         line-height: 1.5;
     }
 
-    /* Bottom Call to Action Banner */
     .cta-banner {
         background: linear-gradient(135deg, rgba(6, 58, 44, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
         border-radius: 20px;
@@ -429,7 +413,6 @@ NIC_DARK_CSS = """
         line-height: 1.6;
     }
 
-    /* Fixed Bottom Footer */
     .nic-footer {
         margin-top: 64px;
         padding: 28px 0 36px 0;
@@ -451,7 +434,6 @@ NIC_DARK_CSS = """
         color: #64748B !important;
     }
 
-    /* Sidebar Dark Styling */
     section[data-testid="stSidebar"] {
         background-color: #0F172A !important;
         border-right: 1px solid #1E293B !important;
@@ -485,7 +467,6 @@ NIC_DARK_CSS = """
         background: #243248 !important;
     }
 
-    /* Hide Streamlit default multipage navigation list */
     [data-testid="stSidebarNav"] {
         display: none !important;
     }
@@ -493,9 +474,6 @@ NIC_DARK_CSS = """
 """
 st.markdown(NIC_DARK_CSS, unsafe_allow_html=True)
 
-# ==============================================================================
-# SIDEBAR BRANDING & QUICK NAVIGATION
-# ==============================================================================
 with st.sidebar:
     st.markdown(
         """
@@ -534,14 +512,8 @@ with st.sidebar:
     st.markdown("### ⚡ AI Core Engine")
     st.caption("Powered by **Groq LPU™ Inference Engine** running **LLaMA 3.3 70B Versatile** at ultra-low latency.")
 
-# ==============================================================================
-# MAIN PAGE CONTENT
-# ==============================================================================
-
-# Decorative top bar
 st.markdown('<div class="nic-topbar"></div>', unsafe_allow_html=True)
 
-# Hero Section
 st.markdown(
     """
     <div class="hero-container">
@@ -562,7 +534,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Prominent Hero Call-to-Action Action Button
 cta_col1, cta_col2, cta_col3 = st.columns([1, 2.5, 1])
 with cta_col2:
     if st.button("🚀 Launch Venture Forge Generator →", key="hero_cta_button", use_container_width=True):
@@ -570,9 +541,6 @@ with cta_col2:
 
 st.markdown("<div style='height: 32px;'></div>", unsafe_allow_html=True)
 
-# ==============================================================================
-# VALUE PROPOSITION CARDS (WHY NIC VENTURE FORGE)
-# ==============================================================================
 st.markdown("## 💡 Why NIC Venture Forge?")
 st.markdown(
     "<p style='color: #94A3B8; font-size: 1.05rem; margin-top: -8px; margin-bottom: 24px;'>"
@@ -630,9 +598,6 @@ with col3:
 
 st.markdown("<div style='height: 36px;'></div>", unsafe_allow_html=True)
 
-# ==============================================================================
-# THE 3-STEP FOUNDER JOURNEY
-# ==============================================================================
 st.markdown("## 🛣️ How It Works (Founder Journey)")
 st.markdown(
     "<p style='color: #94A3B8; font-size: 1.05rem; margin-top: -8px; margin-bottom: 24px;'>"
@@ -690,9 +655,6 @@ with step_col3:
 
 st.markdown("<div style='height: 36px;'></div>", unsafe_allow_html=True)
 
-# ==============================================================================
-# WHAT YOU GET: THE 7 INVESTOR-GRADE SECTIONS
-# ==============================================================================
 st.markdown("## 📦 What You Get (The 7 Deliverables)")
 st.markdown(
     "<p style='color: #94A3B8; font-size: 1.05rem; margin-top: -8px; margin-bottom: 20px;'>"
@@ -766,9 +728,6 @@ with deliv_col2:
         unsafe_allow_html=True,
     )
 
-# ==============================================================================
-# BOTTOM CALL TO ACTION
-# ==============================================================================
 st.markdown(
     """
     <div class="cta-banner">
@@ -788,9 +747,6 @@ with bottom_cta_col2:
     if st.button("🚀 Launch Venture Forge Generator →", key="bottom_cta_button", use_container_width=True):
         st.switch_page("pages/1_🚀_Idea_Generator.py")
 
-# ==============================================================================
-# MANDATORY DEVELOPER FOOTER
-# ==============================================================================
 st.markdown(
     """
     <div class="nic-footer">
